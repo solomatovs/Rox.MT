@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Extensions.Configuration;
@@ -62,11 +63,8 @@ namespace console
                 var infos = manager.SymbolInfoUpdated(10000);
                 foreach (var info in infos)
                 {
-                    Console.WriteLine($"{DateTime.Now} tick {info}");
+                    Console.WriteLine(info);
                 }
-
-                var m = manager.MarginsGet();
-                Console.WriteLine($"{DateTime.Now} {m}");
             };
 
             manager.PUMP_UPDATE_GROUPS += (type, group, param) =>
@@ -82,8 +80,6 @@ namespace console
             var newsKeys = new List<NewsTopicNew>();
             manager.PUMP_UPDATE_NEWS_NEW += (type, news, param) =>
             {
-                newsKeys.Add(news);
-                manager.NewsBodyRequest(news.Key);
                 Console.WriteLine(news);
             };
 
@@ -92,6 +88,7 @@ namespace console
                 foreach (var n in newsKeys)
                 {
                     var body = manager.NewsBodyGet(n.Key, n.Language);
+                    Console.WriteLine(body);
                 }
             };
 
@@ -111,7 +108,9 @@ namespace console
             manager.PUMP_UPDATE_ONLINE += (type, group, param) =>
             {
                 foreach (var l in manager.OnlineGet())
+                {
                     Console.WriteLine(l);
+                }
             };
 
             manager.PUMP_UPDATE_PLUGINS += (type, param) =>
@@ -127,7 +126,7 @@ namespace console
                 Console.WriteLine(request);
                 foreach (var p in manager.RequestsGet())
                 {
-                    Console.WriteLine(p);
+                    //Console.WriteLine(p);
                 }
             };
 
@@ -136,7 +135,7 @@ namespace console
                 Console.WriteLine(symbol);
                 foreach (var p in manager.SymbolsGetAll())
                 {
-                    Console.WriteLine(p);
+                    //Console.WriteLine(p);
                 }
             };
 
@@ -145,7 +144,7 @@ namespace console
                 Console.WriteLine(trade);
                 foreach (var p in manager.TradesGet())
                 {
-                    Console.WriteLine(p);
+                    //Console.WriteLine(p);
                 }
             };
 
@@ -154,16 +153,17 @@ namespace console
                 Console.WriteLine(user);
                 foreach (var p in manager.UsersGet())
                 {
-                    Console.WriteLine(p);
+                    //Console.WriteLine(p);
                 }
             };
 
             manager.SymbolsRefresh();
 
-            manager.PumpingSwitchEx(flags: PumpingFlags.HIDE_TICKS, param: "sdfdf");
+            manager.PumpingSwitchEx(flags: 0, param: null);
 
             Console.WriteLine("ready");
             Console.ReadLine();
+            Console.WriteLine("exit");
         }
     }
 }

@@ -34,7 +34,7 @@ namespace rox.mt4.api
         public SymbolInfo(int codePage) : base(codePage) { }
         public override string ToString()
         {
-            return $"Symbol: {Symbol}; Ask: {Ask}; Bid: {Bid}; Spread: {Spread}; Digits: {Digits}; Commission type: {CommissionType}; Commission: {Commission}; Time: {LastTime}";
+            return $"Symbol: {Symbol}; Time: {LastTime}; Ask: {Ask}; Bid: {Bid}; Spread: {Spread}; Digits: {Digits}; Commission type: {CommissionType}; Commission: {Commission}";
         }
         /// <summary>
         /// Symbol name
@@ -176,7 +176,7 @@ namespace rox.mt4.api
         /// </summary>
         public double Commission
         {
-            get { return native.commission; }
+            get { return Math.Round(native.commission, 8); }
             set { native.commission = value; }
         }
 

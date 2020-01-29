@@ -1,2 +1,2 @@
 # Rox.MT
-MT4 Manager (.NET core Wrapper)
+MT4 Manager (C# wrapper)

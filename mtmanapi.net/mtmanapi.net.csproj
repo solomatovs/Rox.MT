@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Authors>Solomatov Sergey</Authors>
+    <RepositoryUrl>https://bitbucket.org/rox_com/rox.mt.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PlatformsTarget>x64;x86</PlatformsTarget>
+    <LangVersion>8.0</LangVersion>
+    <NullableContextOptions>enable</NullableContextOptions>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Description>.NET Core MT4 Wrapper</Description>
+    <PackageTags>MT4;.NET Core;mt4manapi;mt4manapi.dll;MT4 Manager;MT4 Server</PackageTags>
+    <ApplicationIcon />
+    <OutputType>library</OutputType>
+    <StartupObject />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove=".gitignore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.0" />
+  </ItemGroup>
+
+</Project>

@@ -76,10 +76,10 @@ namespace rox.mt4.rest
 
         public TokenManager(
                 Func<MT4Manager> mt4managerProvider,
-                TokenOption tokenOptions
+               IOptions<TokenOption> tokenOptions
             )
         {
-            this.tokenOption = tokenOptions;
+            this.tokenOption = tokenOptions.Value;
             this.mt4managerProvider = mt4managerProvider;
 
             foreach (var o in tokenOption.tokens)
@@ -216,32 +216,22 @@ namespace rox.mt4.rest
     {
         public static IServiceCollection AddMT4Manager(this IServiceCollection services, IConfiguration configuration)
         {
-            MT4NativeOption native = new MT4NativeOption();
-            configuration.GetSection("mtmanapi").Bind(native);
-            services.AddSingleton<Func<MT4Manager>>(() => new MT4Manager(native));
+            services.Configure<MT4NativeOption>(option => configuration.Bind(option));
+            services.AddSingleton<Func<MT4Manager>>(p => () => new MT4Manager(p.GetService<IOptions<MT4NativeOption>>().Value));
             return services;
         }
         public static IServiceCollection AddTokenManager(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddOptions();
-            services.Configure<TokenOption>(configuration.GetSection("jwt"));
+            services.Configure<TokenOption>(option => configuration.Bind(option));
             services.AddSingleton<IDictionary<string, MT4Manager>>(new ConcurrentDictionary<string, MT4Manager>());
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<ITokenManager, TokenManager>();
-            //services.AddCors(config =>
-            //{
-            //    var policy = new CorsPolicy();
-            //    policy.Headers.Add("*");
-            //    policy.Methods.Add("*");
-            //    policy.Origins.Add("*");
-            //    policy.SupportsCredentials = true;
-            //    config.AddPolicy("policy", policy);
-            //});
             services
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    var tokenOption = new TokenOption(); configuration.GetSection("jwt").Bind(tokenOption);
+                    var tokenOption = new TokenOption(); configuration.Bind(tokenOption);
 
                     options.RequireHttpsMetadata = false;
                     options.TokenValidationParameters = new TokenValidationParameters

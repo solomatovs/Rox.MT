@@ -21,3 +21,6 @@ artifacts/
 /samples/mtmanapi.rest/appsettings.Development.json
 /samples/Pumping/app.dev.json
 /samples/**/*.dev.json
+/samples/mtmanapi.rest/logs
+/samples/mtmanapi.rest/symgroups.raw
+/samples/mtmanapi.rest/symbols.raw

@@ -34,7 +34,7 @@ namespace rox.mt4.api
         public SymbolInfo(int codePage) : base(codePage) { }
         public override string ToString()
         {
-            return $"Symbol: {Symbol}; Time: {LastTime}; Ask: {Ask}; Bid: {Bid}; Spread: {Spread}; Digits: {Digits}; Commission type: {CommissionType}; Commission: {Commission}";
+            return $"Symbol: {Symbol};\tTime: {LastTime};\tAsk: {Math.Round(Ask, Digits)};\tBid: {Math.Round(Bid,Digits)};\tSpread: {Spread};\tDigits: {Digits};\tHigh: {Math.Round(High,Digits)};\tLow: {Math.Round(Low,Digits)};\tCommission type: {CommissionType};\tCommission: {Commission}";
         }
         /// <summary>
         /// Symbol name

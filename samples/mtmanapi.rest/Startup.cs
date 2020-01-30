@@ -18,23 +18,14 @@ namespace rox.mt4.rest
 
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddCors(options =>
-            //{
-            //    options.AddPolicy("policy", builder => builder
-            //     .AllowAnyOrigin()
-            //     .AllowAnyHeader()
-            //     .AllowAnyMethod()
-            //     //.AllowCredentials()
-            //    );
-            //});
             services.AddHsts(options =>
             {
                 options.Preload = true;
                 options.IncludeSubDomains = true;
                 options.MaxAge = System.TimeSpan.FromDays(600);
             });
-            services.AddMT4Manager(Configuration);
-            services.AddTokenManager(Configuration);
+            services.AddMT4Manager(Configuration.GetSection("mtmanapi"));
+            services.AddTokenManager(Configuration.GetSection("jwt"));
             services.AddMvc(option => option.EnableEndpointRouting = false)
                 .AddNewtonsoftJson(o =>
                 {

@@ -73,14 +73,13 @@ namespace rox.mt4.rest
         private readonly IDictionary<string, MT4Manager> cache = new ConcurrentDictionary<string, MT4Manager>();
         private readonly TokenOption tokenOption;
         private readonly Func<MT4Manager> mt4managerProvider;
+        private readonly ILogger logger;
 
-        public TokenManager(
-                Func<MT4Manager> mt4managerProvider,
-               IOptions<TokenOption> tokenOptions
-            )
+        public TokenManager(Func<MT4Manager> mt4managerProvider, TokenOption tokenOptions, ILoggerFactory loggerFactory = null)
         {
-            this.tokenOption = tokenOptions.Value;
+            this.tokenOption = tokenOptions;
             this.mt4managerProvider = mt4managerProvider;
+            this.logger = loggerFactory?.CreateLogger<TokenManager>();
 
             foreach (var o in tokenOption.tokens)
             {
@@ -90,9 +89,9 @@ namespace rox.mt4.rest
                     m.Communication(o.GetMT4ConnectOption());
                     cache.Add(o.token, m);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    // logger.LogWarning($"Configuration warning. Jwt: {o.token} not valid. Login: {o.login}, Server: {o.server} authorization exception: {e.Message}");
+                    logger?.LogWarning($"Configuration warning. Jwt: {o.token} not valid. Login: {o.login}, Server: {o.server} authorization exception: {e.Message}");
                 }
             }
         }
@@ -162,34 +161,7 @@ namespace rox.mt4.rest
             return cache.First(p => p.Key == identifier).Value;
         }
     }
-
-    public class TokenAuthorizationFilter : Attribute, IAuthorizationFilter
-    {
-        private readonly ITokenManager manager;
-        public TokenAuthorizationFilter(ITokenManager manager)
-        {
-            this.manager = manager;
-        }
-        public void OnAuthorization(AuthorizationFilterContext context)
-        {
-            var values = context.HttpContext.Request.Headers["authorization"];
-            if (manager.TokenInRequest(values) != string.Empty && !manager.IsCurrentActiveToken(values))
-            {
-                context.Result = new ForbidResult();
-            }
-        }
-    }
-
-    public class AgeRequirement : IAuthorizationRequirement
-    {
-        protected internal int Age { get; set; }
-
-        public AgeRequirement(int age)
-        {
-            Age = age;
-        }
-    }
-
+    
     public class TokenActiveHandler : IAuthorizationHandler
     {
         private readonly ITokenManager manager;
@@ -203,9 +175,10 @@ namespace rox.mt4.rest
         Task IAuthorizationHandler.HandleAsync(AuthorizationHandlerContext context)
         {
             var values = http.HttpContext.Request.Headers["authorization"];
-            if (!string.IsNullOrWhiteSpace(manager.TokenInRequest(values)) && !manager.IsCurrentActiveToken(values))
+            if (!string.IsNullOrWhiteSpace(manager.TokenInRequest(values)))
             {
-                context.Fail();
+                if (!manager.IsCurrentActiveToken(values))
+                    context.Fail();
             }
 
             return Task.CompletedTask;
@@ -226,7 +199,7 @@ namespace rox.mt4.rest
             services.Configure<TokenOption>(option => configuration.Bind(option));
             services.AddSingleton<IDictionary<string, MT4Manager>>(new ConcurrentDictionary<string, MT4Manager>());
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddSingleton<ITokenManager, TokenManager>();
+            services.AddSingleton<ITokenManager, TokenManager>(p => new TokenManager(p.GetService<Func<MT4Manager>>(), p.GetService<IOptions<TokenOption>>().Value, p.GetService<ILoggerFactory>()));
             services
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
